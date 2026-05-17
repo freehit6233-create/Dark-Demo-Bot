@@ -18,8 +18,8 @@ DATABASE_URL: str = os.environ["DATABASE_URL"]
 CHANNEL_ID: int = int(os.environ["CHANNEL_ID"])
 
 # ── Timings ───────────────────────────────────────────────────────────────────
-VIDEO_DELETE_SECONDS: int = 2 * 60          # 5 minutes
-BROADCAST_DELETE_SECONDS: int = 24 * 60 * 60  # 24 hours
+VIDEO_DELETE_SECONDS: int = 1 * 60          # 1 minute
+BROADCAST_DELETE_SECONDS: int = 6 * 60 * 60  # 6 hours
 CYCLE_DAYS: int = 7                          # 7-day video cycle
 
 # ── Limits ────────────────────────────────────────────────────────────────────
