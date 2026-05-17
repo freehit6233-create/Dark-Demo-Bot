@@ -25,7 +25,7 @@ DATABASE_URL         = os.environ["DATABASE_URL"]
 CHANNEL_ID           = int(os.environ["CHANNEL_ID"])
 CONTACT_ADMIN        = os.environ.get("CONTACT_ADMIN", "https://t.me/youradmin")
 VIDEOS_PER_SESSION   = 5
-VIDEO_DELETE_SECONDS = 2 * 60
+VIDEO_DELETE_SECONDS = 1 * 60
 CYCLE_DAYS           = 7
 
 logging.basicConfig(
@@ -186,7 +186,7 @@ def reset_all_content():
     db_exec("DELETE FROM fetched_content")
 
 def save_broadcast_job(user_id, message_id):
-    delete_at = datetime.utcnow() + timedelta(hours=24)
+    delete_at = datetime.utcnow() + timedelta(hours=6)
     db_exec(
         "INSERT INTO broadcast_jobs(user_id,message_id,delete_at) VALUES(%s,%s,%s)",
         (user_id, message_id, delete_at)
@@ -291,7 +291,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Warning message
     warn = await bot.send_message(
         chat_id=chat_id,
-        text="⚠️ *Yeh videos 2 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
+        text="⚠️ *Yeh videos 1 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
         parse_mode="Markdown",
     )
     all_del = [warn.message_id]
@@ -450,7 +450,7 @@ async def broadcast_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await status.edit_text(
         f"✅ *Broadcast Complete!*\n\n"
-        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 24h baad auto-delete.",
+        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 6h baad auto-delete.",
         parse_mode="Markdown",
     )
 
