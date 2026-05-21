@@ -25,7 +25,7 @@ DATABASE_URL         = os.environ["DATABASE_URL"]
 CHANNEL_ID           = int(os.environ["CHANNEL_ID"])
 CONTACT_ADMIN        = os.environ.get("CONTACT_ADMIN", "https://t.me/youradmin")
 VIDEOS_PER_SESSION   = 20
-VIDEO_DELETE_SECONDS = 5 * 60
+VIDEO_DELETE_SECONDS = 2 * 60
 CYCLE_DAYS           = 7
 
 logging.basicConfig(
@@ -347,7 +347,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await bot.send_message(
         chat_id=chat_id,
-        text=f"📌 *{caption}*",
+        text=f"*{caption}*",
         parse_mode="Markdown",
         reply_markup=InlineKeyboardMarkup(
             [[InlineKeyboardButton("📩 Contact Admin", url=contact_url)]]
