@@ -19,7 +19,7 @@ CHANNEL_ID: int = int(os.environ["CHANNEL_ID"])
 
 # ── Timings ───────────────────────────────────────────────────────────────────
 VIDEO_DELETE_SECONDS: int = 2 * 60          # 2 minutes
-BROADCAST_DELETE_SECONDS: int = 12 * 60 * 60  # 12 hours
+BROADCAST_DELETE_SECONDS: int = 6 * 60 * 60  # 6 hours
 CYCLE_DAYS: int = 7                          # 7-day video cycle
 
 # ── Limits ────────────────────────────────────────────────────────────────────
