@@ -24,8 +24,8 @@ ADMIN_ID             = int(os.environ["ADMIN_ID"])
 DATABASE_URL         = os.environ["DATABASE_URL"]
 CHANNEL_ID           = int(os.environ["CHANNEL_ID"])
 CONTACT_ADMIN        = os.environ.get("CONTACT_ADMIN", "https://t.me/youradmin")
-VIDEOS_PER_SESSION   = 20
-VIDEO_DELETE_SECONDS = 5 * 60
+VIDEOS_PER_SESSION   = 10
+VIDEO_DELETE_SECONDS = 2 * 60
 CYCLE_DAYS           = 7
 
 logging.basicConfig(
@@ -115,7 +115,7 @@ def init_db():
             key TEXT PRIMARY KEY, value TEXT NOT NULL
         )
     """)
-    db_exec("INSERT INTO settings(key,value) VALUES('caption','Aur videos ke liye admin se contact karein.') ON CONFLICT(key) DO NOTHING")
+    db_exec("INSERT INTO settings(key,value) VALUES('caption','Aur videos ke liye Premium Buy kare.') ON CONFLICT(key) DO NOTHING")
     db_exec("""
         CREATE TABLE IF NOT EXISTS fetched_content (
             id SERIAL PRIMARY KEY, user_id BIGINT NOT NULL,
@@ -186,7 +186,7 @@ def reset_all_content():
     db_exec("DELETE FROM fetched_content")
 
 def save_broadcast_job(user_id, message_id):
-    delete_at = datetime.utcnow() + timedelta(hours=24)
+    delete_at = datetime.utcnow() + timedelta(hours=12)
     db_exec(
         "INSERT INTO broadcast_jobs(user_id,message_id,delete_at) VALUES(%s,%s,%s)",
         (user_id, message_id, delete_at)
@@ -291,7 +291,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Warning message
     warn = await bot.send_message(
         chat_id=chat_id,
-        text="⚠️ *Yeh videos 5 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
+        text="⚠️ *Auto Delete in 2 Minutes.*\n📥 Download ya Forward disabled.",
         parse_mode="Markdown",
     )
     all_del = [warn.message_id]
@@ -309,7 +309,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         is_new = True
 
     if not ch_ids:
-        await bot.send_message(chat_id=chat_id, text="❌ Abhi koi video nahi hai. Thodi der baad try karein.")
+        await bot.send_message(chat_id=chat_id, text="❌ Abhi koi video nahi hai. Try Again.")
         return
 
     # Send all videos concurrently (much faster than sequential)
