@@ -25,7 +25,7 @@ DATABASE_URL         = os.environ["DATABASE_URL"]
 CHANNEL_ID           = int(os.environ["CHANNEL_ID"])
 CONTACT_ADMIN        = os.environ.get("CONTACT_ADMIN", "https://t.me/youradmin")
 VIDEOS_PER_SESSION   = 20
-VIDEO_DELETE_SECONDS = 2 * 60
+VIDEO_DELETE_SECONDS = 5 * 60
 CYCLE_DAYS           = 7
 
 logging.basicConfig(
@@ -291,7 +291,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Warning message
     warn = await bot.send_message(
         chat_id=chat_id,
-        text="⚠️ *Yeh videos 2 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
+        text="⚠️ *Yeh videos 5 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
         parse_mode="Markdown",
     )
     all_del = [warn.message_id]
@@ -349,7 +349,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ),
     )
 
-    # Schedule 2-min auto-delete
+    # Schedule 5-min auto-delete
     context.job_queue.run_once(
         _delete_videos_job,
         when=VIDEO_DELETE_SECONDS,
@@ -450,7 +450,7 @@ async def broadcast_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await status.edit_text(
         f"✅ *Broadcast Complete!*\n\n"
-        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 24h baad auto-delete.",
+        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 12h baad auto-delete.",
         parse_mode="Markdown",
     )
 
