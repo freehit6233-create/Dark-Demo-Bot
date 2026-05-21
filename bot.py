@@ -296,7 +296,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Warning message
     warn = await bot.send_message(
         chat_id=chat_id,
-        text="⚠️ *Yeh videos 5 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
+        text="⚠️ *Yeh videos 2 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
         parse_mode="Markdown",
     )
     all_del = [warn.message_id]
