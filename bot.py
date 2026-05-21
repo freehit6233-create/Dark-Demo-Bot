@@ -11,7 +11,7 @@ from threading import Lock
 
 import pg8000.dbapi
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, BotCommand, BotCommandScopeChat
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, TypeHandler
 from telegram.error import TelegramError
 from dotenv import load_dotenv
 import os
@@ -24,8 +24,8 @@ ADMIN_ID             = int(os.environ["ADMIN_ID"])
 DATABASE_URL         = os.environ["DATABASE_URL"]
 CHANNEL_ID           = int(os.environ["CHANNEL_ID"])
 CONTACT_ADMIN        = os.environ.get("CONTACT_ADMIN", "https://t.me/youradmin")
-VIDEOS_PER_SESSION   = 10
-VIDEO_DELETE_SECONDS = 2 * 60
+VIDEOS_PER_SESSION   = 20
+VIDEO_DELETE_SECONDS = 5 * 60
 CYCLE_DAYS           = 7
 
 logging.basicConfig(
@@ -186,7 +186,7 @@ def reset_all_content():
     db_exec("DELETE FROM fetched_content")
 
 def save_broadcast_job(user_id, message_id):
-    delete_at = datetime.utcnow() + timedelta(hours=6)
+    delete_at = datetime.utcnow() + timedelta(hours=24)
     db_exec(
         "INSERT INTO broadcast_jobs(user_id,message_id,delete_at) VALUES(%s,%s,%s)",
         (user_id, message_id, delete_at)
@@ -255,8 +255,11 @@ async def _delete_broadcast_job(context: ContextTypes.DEFAULT_TYPE):
 # AUTO-FETCH: Channel post → instantly DB mein save
 # ═══════════════════════════════════════════════════════════════════════════════
 async def channel_post_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    post = update.channel_post
-    if not post or post.chat.id != CHANNEL_ID:
+    post = update.channel_post or update.message
+    if not post:
+        return
+    if abs(post.chat.id) != abs(CHANNEL_ID):
+        logger.info(f"⚠️ Ignored post from chat_id={post.chat.id} (expected {CHANNEL_ID})")
         return
     media_type = (
         "video"    if post.video    else
@@ -266,6 +269,8 @@ async def channel_post_handler(update: Update, context: ContextTypes.DEFAULT_TYP
     if media_type:
         save_channel_video(post.message_id, media_type)
         logger.info(f"⚡ Auto-indexed {media_type} msg_id={post.message_id} | total={get_channel_video_count()}")
+    else:
+        logger.info(f"⚠️ Channel post received but no media — msg_id={post.message_id}, chat_id={post.chat.id}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -291,7 +296,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Warning message
     warn = await bot.send_message(
         chat_id=chat_id,
-        text="⚠️ *Yeh videos 2 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
+        text="⚠️ *Yeh videos 5 minute baad auto-delete ho jayenge.*\n📥 Download ya Forward disabled hai.",
         parse_mode="Markdown",
     )
     all_del = [warn.message_id]
@@ -450,7 +455,7 @@ async def broadcast_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await status.edit_text(
         f"✅ *Broadcast Complete!*\n\n"
-        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 6h baad auto-delete.",
+        f"📨 Sent: *{ok}*\n❌ Failed: *{fail}*\n⏳ 24h baad auto-delete.",
         parse_mode="Markdown",
     )
 
@@ -489,8 +494,9 @@ def main():
     app.add_handler(CommandHandler("reset",      reset_command))
     app.add_handler(CommandHandler("setcaption", setcaption_command))
     app.add_handler(CommandHandler("broadcast",  broadcast_command))
+    # Channel post handler — channel_post updates ke liye
     app.add_handler(MessageHandler(
-        filters.ChatType.CHANNEL & filters.Chat(CHANNEL_ID),
+        filters.UpdateType.CHANNEL_POST,
         channel_post_handler,
     ))
     logger.info("🤖 Bot started.")
